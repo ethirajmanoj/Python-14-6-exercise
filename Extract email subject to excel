@@ -1,0 +1,51 @@
+Sub CopyEmailDataFromOutlook()
+    Dim olApp As Outlook.Application
+    Dim olNamespace As Outlook.Namespace
+    Dim myrecipient As Outlook.Recipient
+    Dim olSharedFolder As Object
+    Dim olItems As Outlook.Items
+    Dim olItem As Outlook.MailItem
+    Dim i As Long
+    
+    ' Create Outlook application instance
+    Set olApp = New Outlook.Application
+    
+    ' Get the shared mailbox update your "Shared Mailbox Name" below
+    Set olNamespace = olApp.GetNamespace("MAPI")
+    Set myrecipient = olNamespace.CreateRecipient(Testsharedemail.com")
+    
+    
+    'Set olSharedFolder = olNamespace.Folders.Item("creditmanagement-india@flsmidth.com").Folders.Item("Inbox")
+   Set olSharedFolder = olNamespace.GetSharedDefaultFolder(myrecipient, olFolderInbox)
+   
+    
+    
+    ' Get the items in the shared mailbox folder
+    Set olItems = olSharedFolder.Items
+    olItems.Sort "ReceivedTime", True
+    ' Create an Excel workbook and worksheet
+    Dim wb As Workbook
+    Dim ws As Worksheet
+    Set wb = ThisWorkbook
+    Set ws = wb.Worksheets("Sheet1") ' Change the sheet name as needed
+    
+    ' Set the starting row in Excel
+    Dim startRow As Long
+    startRow = 2 ' Start from row 2 to leave space for headers
+    
+    ' Loop through each email item in the shared mailbox folder
+    For Each olItem In olItems
+        ' Copy subject and received date to Excel
+        ws.Cells(startRow, 1).Value = olItem.Subject
+        ws.Cells(startRow, 2).Value = olItem.ReceivedTime
+        
+        startRow = startRow + 1 ' Move to the next row
+    Next olItem
+    
+    ' Clean up objects
+    Set olItem = Nothing
+    Set olItems = Nothing
+    Set olSharedFolder = Nothing
+    Set olNamespace = Nothing
+    Set olApp = Nothing
+End Sub
